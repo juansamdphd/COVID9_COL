@@ -1,5 +1,4 @@
 library(RSocrata)
-library(lubridate)
 library(tidyverse)
 
 # Read Data from INS CO
@@ -16,12 +15,7 @@ covid19_col <- read.socrata(
   password  = "Sarias23!"
 )
 
-covid19_col %>% filter(ciudad_de_ubicaci_n =="CALI") %>% ggplot(aes(x = fecha_de_diagn_stico)) + stat_count(aes(y=cumsum(..count..)))
+covid19_col$fecha_de_diagn_stico <- date(covid19_col$fecha_de_diagn_stico)
 
-covid19_col %>% filter(Ciudad == "BOGOTA" | Ciudad == "CALI" | Ciudad == "MEDELLIN") %>% ggplot(aes(x = Fecha_dx, fill = Ciudad)) + stat_count()
-
-cali <- covid19_col %>% filter(Ciudad =="CALI")
-mde <- covid19_col %>% filter(Ciudad=="MEDELLIN")
-bog <- covid19_col %>% filter(Ciudad=="BOGOTA")
-
-ggplot(data = bog, aes(x = Fecha_dx, fill = Ciudad)) + stat_count(aes(y=cumsum(..count..))) + stat_count(data = cali, aes(x = Fecha_dx, y=cumsum(..count..))) + stat_count(data = mde, aes(x = Fecha_dx, y=cumsum(..count..))) + scale_x_date(date_labels = "%b %d", date_breaks = "1 day") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + facet_wrap(~Ciudad)
+covid19_col %>% 
+  ggplot(aes(x=fecha_de_diagn_stico, colour = ciudad_de_ubicaci_n)) + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Bogota"), aes(y=cumsum(..count..)), geom = "step") + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Cali"), aes(y=cumsum(..count..)), geom = "step") + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Medellin"), aes(y=cumsum(..count..)), geom = "step") + scale_x_date(date_labels = "%b %d", date_breaks = "1 day") + theme(axis.text.x = element_text(angle = 90, hjust = 1))
