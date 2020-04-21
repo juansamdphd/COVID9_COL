@@ -4,16 +4,11 @@ library(tidyverse)
 # Read Data from INS CO
 # key name: covid19_col
 
-### API key datos gov.co: datos_col
-### key ID: c3moeeui79vxz3mcp4vqidh72
-### secret key: 77ousfqh4a0ukrnm5ltxifr70z3c9f514z3jau1vv7ds1bdg4
-
 covid19_col <- read.socrata(
   "https://www.datos.gov.co/resource/gt2j-8ykr.json",
-  app_token = "gBnYk2R4qxZFqwev2oYi3aYuT",
-  email     = "jucamilo.sanchez@gmail.com",
-  password  = "Sarias23!"
-)
+  app_token = my_app_token,
+  email     = my_email,
+  password  = my_password)
 
 covid19_col$fecha_de_notificaci_n <- ymd_hms(covid19_col$fecha_de_notificaci_n)
 covid19_col$fecha_de_notificaci_n <- date(covid19_col$fecha_de_notificaci_n)
