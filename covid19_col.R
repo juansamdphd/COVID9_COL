@@ -11,15 +11,13 @@ covid19_col <- read.socrata(
   email     = my_email,
   password  = my_password)
 
-covid19_col$fecha_de_notificaci_n <- ymd_hms(covid19_col$fecha_de_notificaci_n)
-covid19_col$fecha_de_notificaci_n <- date(covid19_col$fecha_de_notificaci_n)
+covid19_col$fecha_de_notificaci_n <- date(ymd_hms(covid19_col$fecha_de_notificaci_n))
 
-which(is.na(covid19_col$fecha_de_notificaci_n))
+covid19_col$fecha_de_muerte <- as.Date(as.numeric(covid19_col$fecha_de_muerte), origin = "1899-12-30")
 
-covid19_col$fecha_de_notificaci_n[3653] <- "2020-04-13"
-covid19_col$fecha_de_notificaci_n[3654] <-  "2020-04-18"
+covid19_col$fis <- date(ymd_hms(covid19_col$fis))
 
-covid19_col$fecha_de_muerte <- date(ymd_hms(covid19_col$fecha_de_muerte))
+covid19_col$fis <- ifelse(covid19_col$fis == "Asintomático", "Asintomático", date(ymd_hms(covid19_col$fis)))
 
 covid19_col$fecha_recuperado <- date(ymd_hms(covid19_col$fecha_recuperado))
 
