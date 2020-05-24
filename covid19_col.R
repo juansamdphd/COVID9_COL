@@ -3,6 +3,8 @@ library(tidyverse)
 library(lubridate)
 library(forecast)
 
+setwd("~/Documents/GitHub/COVID9_COL")
+
 # Read Data from INS CO
 # key name: covid19_col
 
@@ -34,18 +36,20 @@ cali_notif %>% ggplot(aes(fecha_de_notificaci_n, moving_avg_notif)) + geom_line(
   geom_text(label = cali_notif$moving_avg_notif, position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) + 
   theme_bw()  + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none") + 
   #scale_y_continuous(name = "# de casos notificados (cumulativo)", breaks = seq(0,1500,100)) +
+  scale_colour_manual(name = "", values = c("Fecha de Notificacon" = "red", "Fecha de muerte" = "black", labels = c("Fecha de Notificacion", "Fecha de Muerte"))) +
   scale_y_log10(name = "# de casos (cumulativo)") + annotation_logticks() +
-  scale_x_date(date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
+  scale_x_date(date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day") 
 
 cali_notif %>% ggplot(aes(fecha_de_notificaci_n, moving_avg_notif)) + 
-  geom_line(colour = "red") +
+  geom_line(aes(colour = "red")) +
   geom_point(size = 0.5, colour = "red") +
   geom_text(label = cali_notif$moving_avg_notif, position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) +
   geom_point(data = cali_muerte, aes(fecha_de_muerte, cumu), size = 0.5) +
-  geom_line(data = cali_muerte, aes(fecha_de_muerte, cumu)) +
+  geom_line(data = cali_muerte, aes(fecha_de_muerte, cumu, colour = "black")) +
   geom_text(data = cali_muerte, aes(fecha_de_muerte, cumu, label = cumu), position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) +
-    theme_bw()  + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none") + 
-  scale_y_continuous(name = "# de casos notificados (cumulativo)", breaks = seq(0,2000,100)) +
+  scale_colour_manual(name = "", values = c("red" = "red", "black" = "black"), labels = c("Notificados", "Muertes")) +
+    theme_bw()  + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top") + 
+  scale_y_continuous(name = "# de casos (cumulativo)", breaks = seq(0,2000,100)) +
   #scale_y_log10(name = "# de casos (cumulativo)") + annotation_logticks() +
   scale_x_date(date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
 
