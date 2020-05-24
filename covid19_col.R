@@ -22,23 +22,29 @@ covid19_col$fis <- date(ymd_hms(covid19_col$fis))
 
 covid19_col$fecha_recuperado <- date(ymd_hms(covid19_col$fecha_recuperado))
 
-cali <- covid19_col %>% filter(ciudad_de_ubicaci_n == "Cali") %>% arrange(fecha_de_notificaci_n) %>% group_by(fecha_de_notificaci_n) %>% summarise(count = n()) %>% mutate(cumu = cumsum(count))
+cali_notif <- covid19_col %>% filter(ciudad_de_ubicaci_n == "Cali") %>% arrange(fecha_de_notificaci_n) %>% group_by(fecha_de_notificaci_n) %>% summarise(count = n()) %>% mutate(cumu = cumsum(count))
 
-cali <- cali %>% mutate(moving_avg_notif = round(ma(cali$cumu, order = 5, centre = FALSE), digits = 0))
+cali_muerte <- covid19_col %>% filter(ciudad_de_ubicaci_n == "Cali") %>% arrange(fecha_de_muerte) %>% filter(is.na(fecha_de_muerte) == FALSE) %>% group_by(fecha_de_muerte) %>% summarise(count = n()) %>% mutate(cumu = cumsum(count))
+
+cali_notif <- cali_notif %>% mutate(moving_avg_notif = round(ma(cali_notif$cumu, order = 5, centre = FALSE), digits = 0))
 
 ## Cleaner code
-cali %>% ggplot(aes(fecha_de_notificaci_n, moving_avg_notif)) + geom_line(colour = "red") + 
+cali_notif %>% ggplot(aes(fecha_de_notificaci_n, moving_avg_notif)) + geom_line(colour = "red") + 
   geom_point(size = 0.5, colour = "red") + 
-  geom_text(label = cali$moving_avg_notif, position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) + 
+  geom_text(label = cali_notif$moving_avg_notif, position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) + 
   theme_bw()  + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none") + 
   #scale_y_continuous(name = "# de casos notificados (cumulativo)", breaks = seq(0,1500,100)) +
   scale_y_log10(name = "# de casos (cumulativo)") + annotation_logticks() +
   scale_x_date(date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
 
-cali %>% ggplot(aes(fecha_de_notificaci_n, moving_avg_notif)) + geom_line(colour = "red") + 
-  geom_point(size = 0.5, colour = "red") + 
-  geom_text(label = cali$moving_avg_notif, position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) + 
-  theme_bw()  + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none") + 
+cali_notif %>% ggplot(aes(fecha_de_notificaci_n, moving_avg_notif)) + 
+  geom_line(colour = "red") +
+  geom_point(size = 0.5, colour = "red") +
+  geom_text(label = cali_notif$moving_avg_notif, position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) +
+  geom_point(data = cali_muerte, aes(fecha_de_muerte, cumu), size = 0.5) +
+  geom_line(data = cali_muerte, aes(fecha_de_muerte, cumu)) +
+  geom_text(data = cali_muerte, aes(fecha_de_muerte, cumu, label = cumu), position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) +
+    theme_bw()  + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none") + 
   scale_y_continuous(name = "# de casos notificados (cumulativo)", breaks = seq(0,2000,100)) +
   #scale_y_log10(name = "# de casos (cumulativo)") + annotation_logticks() +
   scale_x_date(date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
