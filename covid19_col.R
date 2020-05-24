@@ -29,12 +29,19 @@ cali <- cali %>% mutate(moving_avg_notif = round(ma(cali$cumu, order = 5, centre
 ## Cleaner code
 cali %>% ggplot(aes(fecha_de_notificaci_n, moving_avg_notif)) + geom_line(colour = "red") + 
   geom_point(size = 0.5, colour = "red") + 
-  #geom_text(label = cali$moving_avg_notif, position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) + 
+  geom_text(label = cali$moving_avg_notif, position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) + 
   theme_bw()  + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none") + 
   #scale_y_continuous(name = "# de casos notificados (cumulativo)", breaks = seq(0,1500,100)) +
   scale_y_log10(name = "# de casos (cumulativo)") + annotation_logticks() +
   scale_x_date(date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
 
+cali %>% ggplot(aes(fecha_de_notificaci_n, moving_avg_notif)) + geom_line(colour = "red") + 
+  geom_point(size = 0.5, colour = "red") + 
+  geom_text(label = cali$moving_avg_notif, position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) + 
+  theme_bw()  + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none") + 
+  scale_y_continuous(name = "# de casos notificados (cumulativo)", breaks = seq(0,2000,100)) +
+  #scale_y_log10(name = "# de casos (cumulativo)") + annotation_logticks() +
+  scale_x_date(date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
 
 ### Combine graphs (in progress)
 covid19_col %>% 
