@@ -61,7 +61,7 @@ cali_notif %>% ggplot(aes(fecha_de_notificaci_n, moving_avg_notif)) +
   theme_bw()  + 
   theme(text = element_text(size = 18), axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top") + 
   ggtitle("COVID-19 en Cali") +
-  scale_y_continuous(name = "Cuenta acumulativa", breaks = seq(0,2000,200)) +
+  scale_y_continuous(name = "Cuenta acumulativa", breaks = seq(0,4000,500)) +
   #scale_y_log10(name = "# de casos (cumulativo)") + annotation_logticks() +
   scale_x_date(name = "", date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
 
@@ -77,7 +77,7 @@ cali_notif %>% ggplot(aes(fecha_de_notificaci_n, cumu)) +
   theme_bw()  + 
   theme(text = element_text(size = 18), axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top") + 
   ggtitle("COVID-19 en Cali") +
-  scale_y_continuous(name = "Cuenta acumulativa", breaks = seq(0,2000,200)) +
+  scale_y_continuous(name = "Cuenta acumulativa", breaks = seq(0,4000,500)) +
   #scale_y_log10(name = "# de casos (cumulativo)") + annotation_logticks() +
   scale_x_date(name = "", date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
 
