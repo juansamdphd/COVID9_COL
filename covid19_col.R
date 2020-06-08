@@ -24,11 +24,13 @@ covid19_col$fis <- date(ymd_hms(covid19_col$fis))
 
 covid19_col$fecha_recuperado <- date(ymd_hms(covid19_col$fecha_recuperado))
 
-covid19_col %>% arrange(fecha_de_notificaci_n) %>% group_by(fecha_de_notificaci_n, ciudad_de_ubicaci_n) %>% summarize(count = n()) %>% View()
+covid19_col %>% arrange(fecha_de_notificaci_n) %>% group_by(fecha_de_notificaci_n, ciudad_de_ubicaci_n) %>% summarize(Casos = n()) %>% View()
 
 cali_notif <- covid19_col %>% filter(ciudad_de_ubicaci_n == "Cali") %>% arrange(fecha_de_notificaci_n) %>% group_by(fecha_de_notificaci_n) %>% summarise(count = n()) %>% mutate(cumu = cumsum(count))
 
 cali_muerte <- covid19_col %>% filter(ciudad_de_ubicaci_n == "Cali") %>% arrange(fecha_de_muerte) %>% filter(is.na(fecha_de_muerte) == FALSE) %>% group_by(fecha_de_muerte) %>% summarise(count = n()) %>% mutate(cumu = cumsum(count))
+
+cali_notif <- cali_notif %>% mutate(moving_avg_count_notif = round(ma(cali_notif$count, order = 5, centre = FALSE), digits = 0))
 
 cali_notif <- cali_notif %>% mutate(moving_avg_notif = round(ma(cali_notif$cumu, order = 5, centre = FALSE), digits = 0))
 
@@ -55,14 +57,50 @@ cali_notif %>% ggplot(aes(fecha_de_notificaci_n, moving_avg_notif)) +
   geom_line(aes(colour = "red")) +
   geom_point(size = 0.5, colour = "red") +
   #geom_text(label = cali_notif$moving_avg_notif, position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) +
-  geom_point(data = cali_muerte, aes(fecha_de_muerte, moving_avg_muerte), size = 0.5) +
-  geom_line(data = cali_muerte, aes(fecha_de_muerte, moving_avg_muerte, colour = "black")) +
+  #geom_point(data = cali_muerte, aes(fecha_de_muerte, moving_avg_muerte), size = 0.5) +
+  #geom_line(data = cali_muerte, aes(fecha_de_muerte, moving_avg_muerte, colour = "black")) +
   #geom_text(data = cali_muerte, aes(fecha_de_muerte, cumu, label = cumu), position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) +
-  scale_colour_manual(name = "", values = c("red" = "red", "black" = "black"), labels = c("Muertes", "Notificados")) +
+  #scale_colour_manual(name = "", values = c("red" = "red", "black" = "black"), labels = c("Muertes", "Notificados")) +
   theme_bw()  + 
-  theme(text = element_text(size = 18), axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "top") + 
+  theme(text = element_text(size = 18), axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none") + 
   ggtitle("COVID-19 en Cali") +
   scale_y_continuous(name = "Cuenta acumulativa", breaks = seq(0,4000,500)) +
+  #scale_y_log10(name = "# de casos (cumulativo)") + annotation_logticks() +
+  scale_x_date(name = "", date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
+
+#### Absolute daily ####
+cali_notif %>% ggplot(aes(fecha_de_notificaci_n, count)) + 
+  #geom_col(aes(colour = "red", fill = "red"), alpha = 0.2) +
+  geom_line(aes(colour = "red")) +
+  #geom_smooth(method = "loess", colour = "red", fill = "red", alpha = 0.2) +
+  geom_point(size = 0.5, colour = "red") +
+  #geom_text(label = cali_notif$moving_avg_notif, position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) +
+  #geom_point(data = cali_muerte, aes(fecha_de_muerte, moving_avg_muerte), size = 0.5) +
+  #geom_line(data = cali_muerte, aes(fecha_de_muerte, moving_avg_muerte, colour = "black")) +
+  #geom_text(data = cali_muerte, aes(fecha_de_muerte, cumu, label = cumu), position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) +
+  #scale_colour_manual(name = "", values = c("red" = "red", "black" = "black"), labels = c("Muertes", "Notificados")) +
+  theme_bw()  + 
+  theme(text = element_text(size = 18), axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none") + 
+  ggtitle("COVID-19 en Cali") +
+  scale_y_continuous(name = "Casos nuevos", breaks = seq(0,200,25)) +
+  #scale_y_log10(name = "# de casos (cumulativo)") + annotation_logticks() +
+  scale_x_date(name = "", date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
+
+#### Absolute daily moving average ####
+cali_notif %>% ggplot(aes(fecha_de_notificaci_n, moving_avg_count_notif)) + 
+  #geom_col(aes(colour = "red", fill = "red"), alpha = 0.2) +
+  geom_line(aes(colour = "red")) +
+  #geom_smooth(method = "loess", colour = "red", fill = "red", alpha = 0.2) +
+  geom_point(size = 0.5, colour = "red") +
+  #geom_text(label = cali_notif$moving_avg_notif, position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) +
+  #geom_point(data = cali_muerte, aes(fecha_de_muerte, moving_avg_muerte), size = 0.5) +
+  #geom_line(data = cali_muerte, aes(fecha_de_muerte, moving_avg_muerte, colour = "black")) +
+  #geom_text(data = cali_muerte, aes(fecha_de_muerte, cumu, label = cumu), position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5) +
+  #scale_colour_manual(name = "", values = c("red" = "red", "black" = "black"), labels = c("Muertes", "Notificados")) +
+  theme_bw()  + 
+  theme(text = element_text(size = 18), axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none") + 
+  ggtitle("COVID-19 en Cali") +
+  scale_y_continuous(name = "Casos nuevos\n (promedio movil)", breaks = seq(0,200,25)) +
   #scale_y_log10(name = "# de casos (cumulativo)") + annotation_logticks() +
   scale_x_date(name = "", date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
 
