@@ -146,7 +146,7 @@ cali_estado %>% ggplot(aes(x = reorder(estado, count), y = count, fill = estado)
   geom_label(data = cali_estado, aes(label = count), size = 4, fill = "white") + 
   theme_bw() +
   coord_flip() +
-  theme(legend.position = "none") +
+  theme(legend.position = "none", axis.text = element_text(size = 12), axis.title = element_blank()) +
   scale_fill_brewer(palette = "Reds")
 
 #### Using stat_bin just for Cali (adaptable to include other cities) ####
