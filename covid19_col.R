@@ -2,7 +2,6 @@ library(RSocrata)
 library(tidyverse)
 library(lubridate)
 library(forecast)
-library(plotly)
 
 setwd("~/Documents/GitHub/COVID9_COL")
 
@@ -68,7 +67,7 @@ cali_notif %>% ggplot(aes(fecha_de_notificaci_n, moving_avg_notif)) +
   scale_x_date(name = "", date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
 
 #### Absolute count NO moving average ####
-cali_plot <- cali_notif %>% ggplot(aes(fecha_de_notificaci_n, cumu)) + 
+cali_notif %>% ggplot(aes(fecha_de_notificaci_n, cumu)) + 
   geom_line(aes(colour = "red")) +
   geom_point(size = 0.5, colour = "red") +
   geom_text(data = cali_notif, aes( max(fecha_de_notificaci_n), max(cumu), label = max(cumu)), position = position_dodge(0.9), check_overlap = FALSE, vjust = -0.5, size = 5) +
@@ -82,10 +81,6 @@ cali_plot <- cali_notif %>% ggplot(aes(fecha_de_notificaci_n, cumu)) +
   scale_y_continuous(name = "Cuenta acumulativa", breaks = seq(0,4000,500)) +
   #scale_y_log10(name = "# de casos (cumulativo)") + annotation_logticks() +
   scale_x_date(name = "", date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
-
-cali_plot
-
-ggplotly(cali_plot)
 
 #### Log10 Absolute count NO moving average ####
 cali_notif %>% ggplot(aes(fecha_de_notificaci_n, cumu)) + 
