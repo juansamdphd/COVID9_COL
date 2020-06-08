@@ -1,5 +1,6 @@
 library(RSocrata)
 library(tidyverse)
+library(ggrepel)
 library(lubridate)
 library(forecast)
 
@@ -104,7 +105,7 @@ cali_notif %>% ggplot(aes(fecha_de_notificaci_n, moving_avg_count_notif)) +
   #scale_y_log10(name = "# de casos (cumulativo)") + annotation_logticks() +
   scale_x_date(name = "", date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
 
-#### Absolute count NO moving average ####
+#### Absolute cumulative count NO moving average ####
 cali_notif %>% ggplot(aes(fecha_de_notificaci_n, cumu)) + 
   geom_line(aes(colour = "red")) +
   geom_point(size = 0.5, colour = "red") +
@@ -136,14 +137,26 @@ cali_notif %>% ggplot(aes(fecha_de_notificaci_n, cumu)) +
   scale_y_log10(name = "# de casos (cumulativo)", limits = c(1,10000)) + annotation_logticks() +
   scale_x_date(name = "", date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day")
 
-#### Usig stat_bin just for Cali (adaptable to incude other cities) ####
+#### Case status ####
+cali_estado <- covid19_col %>% filter(ciudad_de_ubicaci_n == "Cali") %>%
+  group_by(estado) %>% filter(estado !="N/A") %>% summarise(count = n()) %>% mutate(prp = round(count/sum(count)*100, digits = 2)) %>% mutate(ypos = cumsum(prp)-0.5*prp) 
+
+# cali_estado$estado <- factor(c("Asintomático", "Leve", "Grave", "Moderado", "Fallecido"))
+
+cali_estado %>% ggplot(aes(x = "", y = prp, fill = estado)) +
+  geom_bar(stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) + 
+  geom_text_repel(data = cali_estado, aes(y = ypos, label = prp), size = 5, colour = "white") + 
+  theme_void() +
+  scale_fill_brewer(palette = "Reds")
+
+#### Using stat_bin just for Cali (adaptable to include other cities) ####
 covid19_col %>% 
   ggplot() + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Cali"), aes(x= fecha_diagnostico, y=cumsum(..count..)), binwidth = 1, geom = "step", colour = "red") + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Cali"), aes(x=fecha_diagnostico, y=cumsum(..count..)), binwidth = 1, geom = "point", colour = "red") + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Cali"), aes(x=fecha_diagnostico, y=cumsum(..count..), label = cumsum(..count..)), binwidth = 1, geom = "text", colour = "black", vjust = -0.25) + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Cali"), aes(x= fecha_de_muerte, y=cumsum(..count..)), binwidth = 1, geom = "step", colour = "black") + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Cali"), aes(x=fecha_de_muerte, y=cumsum(..count..)), binwidth = 1, geom = "point", colour = "black") + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Cali"), aes(x=fecha_de_muerte, y=cumsum(..count..), label = cumsum(..count..)), binwidth = 1, geom = "text", colour = "black", vjust = -0.25) + scale_x_date(name = "", date_labels = "%b %d", date_breaks = "1 day", minor_breaks = "1 day") + scale_y_continuous(name = "# de casos notificados (cumulativo)", breaks = seq(0,800,50)) + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none")
 
-## Usig stat_bin just for Cali (cleaner)
+#### Using stat_bin just for Cali (cleaner) ####
 covid19_col %>% filter(ciudad_de_ubicaci_n == "Cali") %>%
   ggplot() + stat_bin(aes(x= fecha_diagnostico, y=cumsum(..count..)), binwidth = 1, geom = "step", colour = "red") + stat_bin(aes(x= fecha_diagnostico, y=cumsum(..count..)), binwidth = 1, geom = "point", colour = "red") + stat_bin(aes(x=fecha_diagnostico, y=cumsum(..count..), label = cumsum(..count..)), binwidth = 1, geom = "text", colour = "black", vjust = -0.25) + stat_bin(aes(x= fecha_de_muerte, y=cumsum(..count..)), binwidth = 1, geom = "step", colour = "black") + stat_bin(aes(x=fecha_de_muerte, y=cumsum(..count..)), binwidth = 1, geom = "point", colour = "black") + stat_bin(aes(x=fecha_de_muerte, y=cumsum(..count..), label = cumsum(..count..)), binwidth = 1, geom = "text", colour = "black", vjust = -0.25) + scale_x_date(name = "Fecha de notificacion", date_labels = "%b %d", date_breaks = "1 day", minor_breaks = "1 day") + scale_y_continuous(name = "# de casos notificados (cumulativo)", breaks = seq(0,1500,100)) + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-## 
 covid19_col %>% 
   ggplot() + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Cali"), aes(x= fecha_diagnostico, y=cumsum(..count..)), binwidth = 1, geom = "step", colour = "red") + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Cali"), aes(x=fecha_diagnostico, y=cumsum(..count..)), binwidth = 1, geom = "point", colour = "red") + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Cali"), aes(x=fecha_diagnostico, y=cumsum(..count..), label = cumsum(..count..)), binwidth = 1, geom = "text", colour = "black", vjust = -0.25) + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Cali"), aes(x= fecha_de_muerte, y=cumsum(..count..)), binwidth = 1, geom = "step", colour = "black") + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Cali"), aes(x=fecha_de_muerte, y=cumsum(..count..)), binwidth = 1, geom = "point", colour = "black") + stat_bin(data=subset(covid19_col, ciudad_de_ubicaci_n == "Cali"), aes(x=fecha_de_muerte, y=cumsum(..count..), label = cumsum(..count..)), binwidth = 1, geom = "text", colour = "black", vjust = -0.25) + scale_x_date(name = element_blank(), date_labels = "%b %d", date_breaks = "5 day", minor_breaks = "1 day") + scale_y_log10(name = "# de casos (cumulativo)") + annotation_logticks() + theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
