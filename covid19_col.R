@@ -139,15 +139,14 @@ cali_notif %>% ggplot(aes(fecha_de_notificaci_n, cumu)) +
 
 #### Case status ####
 cali_estado <- covid19_col %>% filter(ciudad_de_ubicaci_n == "Cali") %>%
-  group_by(estado) %>% filter(estado !="N/A") %>% summarise(count = n()) %>% mutate(prp = round(count/sum(count)*100, digits = 2)) %>% mutate(ypos = cumsum(prp)-0.5*prp) 
+  group_by(estado) %>% filter(estado !="N/A") %>% summarise(count = n()) %>% arrange(desc(count))
 
-# cali_estado$estado <- factor(c("Asintomático", "Leve", "Grave", "Moderado", "Fallecido"))
-
-cali_estado %>% ggplot(aes(x = "", y = prp, fill = estado)) +
-  geom_bar(stat="identity", width=1, color="white") +
-  coord_polar("y", start=0) + 
-  geom_text_repel(data = cali_estado, aes(y = ypos, label = prp), size = 5, colour = "white") + 
-  theme_void() +
+cali_estado %>% ggplot(aes(x = reorder(estado, count), y = count, fill = estado)) +
+  geom_bar(stat="identity", width=0.9, color="white") +
+  geom_label(data = cali_estado, aes(label = count), size = 4, fill = "white") + 
+  theme_bw() +
+  coord_flip() +
+  theme(legend.position = "none") +
   scale_fill_brewer(palette = "Reds")
 
 #### Using stat_bin just for Cali (adaptable to include other cities) ####
